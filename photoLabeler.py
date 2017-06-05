@@ -9,6 +9,17 @@ class Application(tk.Frame):
 
         self.img_copy = None
         self.log_file = log_file
+
+        self.seen = {}
+        try:
+            with open(self.log_file, 'r+') as f:
+                text = f.read()
+                lines = text.split('\n')
+                files = [line.split(',')[0] for line in lines]
+                self.seen = {img:True for img in files}
+        except:
+            print("log file does not exist, will be created")
+
         self.photos = self.find_photos(im_root_path)
         self.pack()
         self.createWidgets()
@@ -19,6 +30,7 @@ class Application(tk.Frame):
         self.change_image()
         self.bind('<Configure>', self.resize_image)
         self.bind_all('<Key>', self.key)
+        self.bind_all('<Escape>', self.close)
 
     def resize_image(self, event):
         self.image = self.img_copy.resize((event.width, event.height))
@@ -31,7 +43,7 @@ class Application(tk.Frame):
             dirs.sort()
             files.sort()
             for fi in files:
-                if fi.endswith('.jpg'):
+                if fi.endswith('.jpg') and not self.seen.get(os.path.join(path, fi), False):
                     yield os.path.join(path, fi)
 
     def change_image(self):
@@ -49,11 +61,14 @@ class Application(tk.Frame):
     def ignore(self, event):
         return "break"
 
+    def close(self, event):
+        sys.exit()
+
     def key(self, event):
         self.master.bind_all('<Key>', self.ignore)
 
         input = event.char
-        with open(self.log_file, 'a') as log:
+        with open(self.log_file, 'a+') as log:
             log.write(self.cur_img + ',' + input + '\n')
         self.change_image()
         print(event.char)

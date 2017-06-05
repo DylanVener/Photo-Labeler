@@ -5,6 +5,3 @@ takes as command line args "<log file>" wherein it will just append the name of 
 
 Also takes "<img dir>" where it will recursively search for all images ending in ".jpg"
 
-
-TODO:
-Make it only return images that don't exist in the logfile yet
